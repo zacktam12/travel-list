@@ -1,40 +1,44 @@
 import { useState } from "react";
 
 const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: false },
-  { id: 2, description: "Socks", quantity: 12, packed: false },
-  { id: 3, description: "Charger", quantity: 1, packed: true },
+  { id: 1, description: " Passports", quantity: 2, packed: false },
+  { id: 2, description: " Socks", quantity: 12, packed: false },
+  { id: 3, description: " Charger", quantity: 1, packed: true },
 ];
 
 export default function App() {
-  const [items, setItems] = useState(initialItems);
+  const [items, setItems] = useState([]);
+  function handleAddItems(item) {
+    setItems((items) => [...items, item]);
+  }
 
   return (
     <div className="App">
       <Logo />
-      <Form setItems={setItems} />
-      <PackingList items={items} setItems={setItems} />
-      <Stats items={items} />
+      <Form onAddItems={handleAddItems} />
+      <PackingList items={items} />
+      <Stats />
     </div>
   );
 }
-
 function Logo() {
   return <h1>✨Far Away</h1>;
 }
 
-const Form = ({ setItems }) => {
+const Form = ({ onAddItems }) => {
   const [description, setDescription] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState();
 
   function handleSubmit(e) {
     e.preventDefault();
+    if (!description) return;
+
     const newItem = { description, quantity, packed: false, id: Date.now() };
-    setItems((prevItems) => [...prevItems, newItem]);
-    setDescription("");
+    console.log(newItem);
+    onAddItems(newItem);
+    setDescription(" ");
     setQuantity(1);
   }
-
   return (
     <form className="add-form" onSubmit={handleSubmit}>
       <h3>What do you need for your 😍 trip?</h3>
@@ -53,58 +57,38 @@ const Form = ({ setItems }) => {
         placeholder="item..."
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-      />
+      ></input>
       <button>Add</button>
     </form>
   );
 };
-
-function PackingList({ items, setItems }) {
+function PackingList({ items }) {
   return (
-    <ul className="list">
-      {items.map((item) => (
-        <Item key={item.id} item={item} setItems={setItems} />
-      ))}
-    </ul>
+    <div className="list" key="item.id">
+      <li>
+        {items.map((item) => (
+          <Item item={item} key={item.id} />
+        ))}
+      </li>
+    </div>
   );
 }
-
-function Item({ item, setItems }) {
-  function togglePacked() {
-    setItems((prevItems) =>
-      prevItems.map((i) => (i.id === item.id ? { ...i, packed: !i.packed } : i))
-    );
-  }
-
-  function removeItem() {
-    setItems((prevItems) => prevItems.filter((i) => i.id !== item.id));
-  }
-
+function Item({ item }) {
   return (
     <li>
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
-        {item.quantity} {item.description}
+        {" "}
+        {item.quantity}
+        {item.description}
       </span>
-      <button onClick={togglePacked}>
-        {item.packed ? "📦 Unpack" : "✅ Pack"}
-      </button>
-      <button onClick={removeItem}>❌&times;</button>
+      <button>❌&times</button>
     </li>
   );
 }
-
-function Stats({ items }) {
-  const packedItems = items.filter((item) => item.packed).length;
-  const totalItems = items.length;
-  const packedPercentage =
-    totalItems > 0 ? Math.round((packedItems / totalItems) * 100) : 0;
-
+function Stats() {
   return (
     <footer className="stats">
-      <em>
-        💼 You have {totalItems} items on your list, and you already packed{" "}
-        {packedItems} ({packedPercentage}%)
-      </em>
+      <em>💼You have X items on your list,and you already packed X(%X)</em>
     </footer>
   );
 }

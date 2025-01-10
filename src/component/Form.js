@@ -1,25 +1,47 @@
-import { useState } from "react";
+import { useReducer } from "react";
+
+const initialState = {
+  description: "",
+  quantity: 1,
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "SET_DESCRIPTION":
+      return { ...state, description: action.payload };
+    case "SET_QUANTITY":
+      return { ...state, quantity: action.payload };
+    case "RESET":
+      return initialState;
+    default:
+      return state;
+  }
+}
+
 export default function Form({ onAddItems }) {
-  const [description, setDescription] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!description) return;
+    if (!state.description) return;
 
-    const newItem = { description, quantity, packed: false, id: Date.now() };
+    const newItem = {
+      description: state.description,
+      quantity: state.quantity,
+      packed: false,
+      id: Date.now(),
+    };
     console.log(newItem);
     onAddItems(newItem);
-    setDescription("");
-    setQuantity(1);
+    dispatch({ type: "RESET" });
   }
 
   return (
     <form className="add-form" onSubmit={handleSubmit}>
       <h3>What do you need for your 😍 trip?</h3>
       <select
-        value={quantity}
-        onChange={(e) => setQuantity(Number(e.target.value))}
+        value={state.quantity}
+        onChange={(e) => dispatch({ type: "SET_QUANTITY", payload: Number(e.target.value) })}
       >
         {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
           <option value={num} key={num}>
@@ -30,10 +52,10 @@ export default function Form({ onAddItems }) {
       <input
         type="text"
         placeholder="item..."
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
+        value={state.description}
+        onChange={(e) => dispatch({ type: "SET_DESCRIPTION", payload: e.target.value })}
       />
       <button>Add</button>
     </form>
   );
-}
+}</select></form>

@@ -3,14 +3,17 @@ import { useReducer } from "react";
 const initialState = {
   description: "",
   quantity: 1,
+  error: "",
 };
 
 function reducer(state, action) {
   switch (action.type) {
     case "SET_DESCRIPTION":
-      return { ...state, description: action.payload };
+      return { ...state, description: action.payload, error: "" };
     case "SET_QUANTITY":
-      return { ...state, quantity: action.payload };
+      return { ...state, quantity: action.payload, error: "" };
+    case "SET_ERROR":
+      return { ...state, error: action.payload };
     case "RESET":
       return initialState;
     default:
@@ -23,7 +26,10 @@ export default function Form({ onAddItems }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!state.description) return;
+    if (!state.description) {
+      dispatch({ type: "SET_ERROR", payload: "Description is required" });
+      return;
+    }
 
     const newItem = {
       description: state.description,
@@ -39,9 +45,12 @@ export default function Form({ onAddItems }) {
   return (
     <form className="add-form" onSubmit={handleSubmit}>
       <h3>What do you need for your 😍 trip?</h3>
+      {state.error && <p style={{ color: "red" }}>{state.error}</p>}
       <select
         value={state.quantity}
-        onChange={(e) => dispatch({ type: "SET_QUANTITY", payload: Number(e.target.value) })}
+        onChange={(e) =>
+          dispatch({ type: "SET_QUANTITY", payload: Number(e.target.value) })
+        }
       >
         {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
           <option value={num} key={num}>
@@ -53,9 +62,11 @@ export default function Form({ onAddItems }) {
         type="text"
         placeholder="item..."
         value={state.description}
-        onChange={(e) => dispatch({ type: "SET_DESCRIPTION", payload: e.target.value })}
+        onChange={(e) =>
+          dispatch({ type: "SET_DESCRIPTION", payload: e.target.value })
+        }
       />
       <button>Add</button>
     </form>
   );
-}</select></form>
+}
